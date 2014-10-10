@@ -15,7 +15,7 @@ import taurus
 from draw import DrawSVG 
 import sys
 #sys.path.append('pyglet')
-import pyglet
+#import pyglet
 from math import sqrt
 
 
@@ -85,7 +85,8 @@ class Ui_Widget(QGraphicsView):
         self.svgwidth=250
         self.svgheight=250
         self.svg = DrawSVG("self.worksname", self.svgwidth, self.svgheight) 
-        
+        if not os.path.isdir('resources'):
+            os.makedirs('resources')
         
         
         
@@ -467,6 +468,8 @@ class Ui_Widget(QGraphicsView):
         self.graphicsView = Scroll(self, self.frame)
         self.graphicsView.setGeometry(QtCore.QRect(870, 40, 300, 300))
         self.graphicsView.setObjectName(_fromUtf8("graphicsView"))
+        self._height = self.graphicsView.geometry().height()
+        self._width = self.graphicsView.geometry().width()
         self.wheel_integer_count=0
 
         self.retranslateUi(Dialog)
@@ -545,6 +548,24 @@ class Ui_Widget(QGraphicsView):
                 self.spinBox_LineEndY.clear()
                 self.spinBox_LineEndY.setValue(pary)
                 
+        if parx<250 and pary<70:
+            print("AAAAAAAAAAAAAAA")
+            try:    
+                dp = PyTango.DeviceProxy(str(self.comboBox_AssignedDevices.currentText()));
+                self.status = dp.status()
+                print(self.status)
+            except: 
+                print("Cannot connect")
+                self.status = "Cannot connect"
+                            
+            self.messageBox_status=QtGui.QMessageBox()
+            self.messageBox_status.setGeometry(QtCore.QRect(350, 350, 190, 22))
+            self.messageBox_status.setObjectName(_fromUtf8("messageBox_status"))
+            self.messageBox_status.setText("Status: "+self.status)  
+            self.messageBox_status.exec_() 
+    
+                
+                
         
     def click(self):
         print("tangohost")
@@ -560,6 +581,9 @@ class Ui_Widget(QGraphicsView):
             self.wheel_integer_count+=1
         else:
             self.wheel_integer_count-=1
+            
+        
+
         
         path = str(self.lineEdit_PictureName.text())+".svg"
         if os.path.isfile(path):
@@ -612,10 +636,12 @@ class Ui_Widget(QGraphicsView):
                 self.scene.clear()
                 self.pixmap = QtGui.QPixmap(path+"v3.svg").scaled(self.graphicsView.size(), QtCore.Qt.KeepAspectRatio)
                 self.scene.addPixmap(self.pixmap)
+                """
                 self._height = self.graphicsView.geometry().height()
                 self._width = self.graphicsView.geometry().width()
                 print(type(self.graphicsView.geometry().width()))
                 print(type(self._width))
+                """
                 
             elif self.wheel_integer_count > 2:
                 
@@ -847,16 +873,12 @@ class Ui_Widget(QGraphicsView):
             path = str(self.lineEdit_PictureName.text())+".svg"
             if os.path.isfile(path):
                 self.scene.addPixmap(QtGui.QPixmap(path).scaled(self.graphicsView.size(), QtCore.Qt.KeepAspectRatio))
-                button_texture_1 = pyglet.image.load(path)
-                button_texture_2 = pyglet.image.load('status.png')
-                button_sprite_1 = pyglet.sprite.Sprite(button_texture_1, x=0, y=0)
-                button_sprite_2 = pyglet.sprite.Sprite(button_texture_2, x=50, y=50)
-
-                window = pyglet.window.Window()
+           
 
             else:
                 path = 'resources/' + path
                 self.scene.addPixmap(QtGui.QPixmap(path))
+                self.scene.addPixmap(QtGui.QPixmap("status.png"))
                 #.scaled(self.graphicsView.size(), QtCore.Qt.KeepAspectRatio)
                 """
                 import cairo
@@ -872,7 +894,7 @@ class Ui_Widget(QGraphicsView):
                 handler.render_cairo(ctx)
                 img.write_to_png("tomek.png")
                 """
-                
+                """
                 button_texture_1 = pyglet.image.load("obraze.png")
                 button_texture_2 = pyglet.image.load('status.png')
                 button_sprite_1 = pyglet.sprite.Sprite(button_texture_1, x=0, y=0)
@@ -903,14 +925,14 @@ class Ui_Widget(QGraphicsView):
                             self.messageBox_status.setText("Status: "+self.status)  
                             self.messageBox_status.exec_()  
                 pyglet.app.run()
-            
+                """
             self.graphicsView.setScene(self.scene)
            
         else:
             self.lineEdit_PictureName.clear()
             self.pushButton_AssignNameAndSizesToPicture.show()
-            self.lineEdit_PictureWidth.setText("800")
-            self.lineEdit_PictureHeight.setText("600")
+            self.lineEdit_PictureWidth.setText("300")
+            self.lineEdit_PictureHeight.setText("300")
              
     def choosen_UnassignedDevices_comboBox_2(self):
         self.frame.hide()
@@ -1190,3 +1212,4 @@ if __name__ == "__main__":
     sys.exit(app.exec_())
     
     
+
